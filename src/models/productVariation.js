@@ -2,17 +2,16 @@ import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
   return sequelize.define(
-    "User",
+    "ProductVariation",
     {
       id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-      fullname: DataTypes.STRING,
-      email: { type: DataTypes.STRING, unique: true },
-      password_hash: DataTypes.STRING,
-      phonenumber: DataTypes.STRING,
-      role_id: DataTypes.INTEGER,
+      product_id: DataTypes.INTEGER,
+      color_id: DataTypes.INTEGER,
+      sku: DataTypes.STRING,
+      stock_quantity: DataTypes.INTEGER,
       createdAt: DataTypes.DATE,
       updatedAt: DataTypes.DATE,
     },
-    { tableName: "users", timestamps: false }
+    { tableName: "product_variations", timestamps: false }
   );
 };

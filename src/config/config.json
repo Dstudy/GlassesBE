@@ -5,7 +5,9 @@
     "database": "glasses",
     "host": "127.0.0.1",
     "dialect": "mysql",
-    "logging": false
+    "logging": false, 
+    "querry": {"raw": true}, 
+    "timezone": "+07:00"
   },
   "test": {
     "username": "root",
