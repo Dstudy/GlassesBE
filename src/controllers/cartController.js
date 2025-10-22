@@ -6,13 +6,11 @@ const getCart = async (req, res) => {
     const data = await cartService.getCart(userId);
     return res.status(200).json({ errCode: 0, message: "OK", data });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        errCode: 1,
-        message: "Error getting cart",
-        error: error.message,
-      });
+    return res.status(500).json({
+      errCode: 1,
+      message: "Error getting cart",
+      error: error.message,
+    });
   }
 };
 
@@ -43,12 +41,10 @@ const updateItem = async (req, res) => {
     const { userId } = req.params;
     const { productVariationId, quantity } = req.body;
     if (!productVariationId || typeof quantity !== "number") {
-      return res
-        .status(400)
-        .json({
-          errCode: 1,
-          message: "productVariationId and numeric quantity are required",
-        });
+      return res.status(400).json({
+        errCode: 1,
+        message: "productVariationId and numeric quantity are required",
+      });
     }
     const item = await cartService.updateItem(
       userId,
@@ -61,13 +57,11 @@ const updateItem = async (req, res) => {
         .json({ errCode: 1, message: "Cart item not found" });
     return res.status(200).json({ errCode: 0, message: "OK", data: item });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        errCode: 1,
-        message: "Error updating item",
-        error: error.message,
-      });
+    return res.status(500).json({
+      errCode: 1,
+      message: "Error updating item",
+      error: error.message,
+    });
   }
 };
 
@@ -82,13 +76,11 @@ const removeItem = async (req, res) => {
       .status(200)
       .json({ errCode: 0, message: ok ? "Removed" : "Not Found" });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        errCode: 1,
-        message: "Error removing item",
-        error: error.message,
-      });
+    return res.status(500).json({
+      errCode: 1,
+      message: "Error removing item",
+      error: error.message,
+    });
   }
 };
 
@@ -98,13 +90,11 @@ const clearCart = async (req, res) => {
     await cartService.clearCart(userId);
     return res.status(200).json({ errCode: 0, message: "Cleared" });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        errCode: 1,
-        message: "Error clearing cart",
-        error: error.message,
-      });
+    return res.status(500).json({
+      errCode: 1,
+      message: "Error clearing cart",
+      error: error.message,
+    });
   }
 };
 

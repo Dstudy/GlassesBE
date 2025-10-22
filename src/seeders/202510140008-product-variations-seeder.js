@@ -1,35 +1,89 @@
 "use strict";
-const { faker } = require("@faker-js/faker");
+const fs = require("fs");
+const path = require("path");
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const variations = [];
-    // Create variations for the 15 products created in the previous seeder
-    for (let productId = 1; productId <= 15; productId++) {
-      // Create 2 to 4 variations for each product
-      const numVariations = faker.number.int({ min: 2, max: 4 });
-      const usedColorIds = new Set();
+    const jsonPath = path.join(__dirname, "..", "..", "ref", "products.json");
+    const raw = fs.readFileSync(jsonPath, "utf8");
+    /** @type {Array<any>} */
+    const products = JSON.parse(raw);
 
-      for (let i = 0; i < numVariations; i++) {
-        let colorId;
-        // Ensure unique color for each product's variations
-        do {
-          colorId = faker.number.int({ min: 1, max: 5 }); // Assumes color IDs 1-5 exist
-        } while (usedColorIds.has(colorId));
-        usedColorIds.add(colorId);
+    const now = new Date();
+    const slug = (s) =>
+      String(s || "")
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .toUpperCase();
 
-        variations.push({
-          product_id: productId,
-          color_id: colorId,
-          sku: faker.string.alphanumeric(10).toUpperCase(),
-          stock_quantity: faker.number.int({ min: 0, max: 100 }),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+    for (const item of products) {
+      if (!item.imagesByColor || typeof item.imagesByColor !== "object")
+        continue;
+
+      // Resolve product id by name
+      const prodRows = await queryInterface.sequelize.query(
+        "SELECT id FROM products WHERE name = :name LIMIT 1",
+        { type: Sequelize.QueryTypes.SELECT, replacements: { name: item.name } }
+      );
+      if (!prodRows || !prodRows[0]) continue;
+      const productId = prodRows[0].id;
+
+      for (const [colorName] of Object.entries(item.imagesByColor)) {
+        // Resolve or create color
+        let colorRows = await queryInterface.sequelize.query(
+          "SELECT id FROM colors WHERE name = :name LIMIT 1",
+          {
+            type: Sequelize.QueryTypes.SELECT,
+            replacements: { name: colorName },
+          }
+        );
+        let colorId = colorRows && colorRows[0] ? colorRows[0].id : null;
+        if (!colorId) {
+          await queryInterface.bulkInsert(
+            "colors",
+            [{ name: colorName, hex_code: null }],
+            {}
+          );
+          colorRows = await queryInterface.sequelize.query(
+            "SELECT id FROM colors WHERE name = :name LIMIT 1",
+            {
+              type: Sequelize.QueryTypes.SELECT,
+              replacements: { name: colorName },
+            }
+          );
+          colorId = colorRows && colorRows[0] ? colorRows[0].id : null;
+        }
+        if (!colorId) continue;
+
+        // Skip if variation already exists
+        const existing = await queryInterface.sequelize.query(
+          "SELECT id FROM product_variations WHERE product_id = :pid AND color_id = :cid LIMIT 1",
+          {
+            type: Sequelize.QueryTypes.SELECT,
+            replacements: { pid: productId, cid: colorId },
+          }
+        );
+        if (existing && existing[0]) continue;
+
+        await queryInterface.bulkInsert(
+          "product_variations",
+          [
+            {
+              product_id: productId,
+              color_id: colorId,
+              sku: `${slug(item.name)}-${slug(colorName)}`,
+              stock_quantity: 100,
+              createdAt: now,
+              updatedAt: now,
+            },
+          ],
+          {}
+        );
       }
     }
-    await queryInterface.bulkInsert("product_variations", variations, {});
   },
 
   async down(queryInterface, Sequelize) {

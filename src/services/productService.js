@@ -8,6 +8,8 @@ const {
   Shape,
   Color,
   Material,
+  Feature,
+  ProductFeature,
 } = models;
 
 const getAllProducts = async (queryParams) => {
@@ -56,6 +58,7 @@ const getAllProducts = async (queryParams) => {
     // Category filtering is disabled because Category model/associations are not defined
 
     const { count, rows } = await Product.findAndCountAll({
+      where: { active: true }, // Only show active products
       include: includeClause,
       limit: numericLimit,
       offset: offset,
@@ -110,8 +113,38 @@ const getAllMaterials = async () => {
   return materials;
 };
 
+const getAllFeatures = async () => {
+  const features = await Feature.findAll({
+    attributes: ["id", "name", "img"],
+    order: [["name", "ASC"]],
+  });
+  return features;
+};
+
+const getProductFeatures = async (productId) => {
+  const rows = await ProductFeature.findAll({
+    where: { product_id: productId },
+    include: [{ model: Feature, attributes: ["id", "name", "img"] }],
+  });
+  // return flattened feature objects
+  return rows.map((r) => ({
+    id: r.Feature.id,
+    name: r.Feature.name,
+    img: r.Feature.img,
+  }));
+};
+
+const getFeature = async (id) => {
+  if (!id) return null;
+  const feat = await Feature.findByPk(id, {
+    attributes: ["id", "name", "img"],
+  });
+  return feat;
+};
+
 const getProductById = async (id) => {
-  const product = await Product.findByPk(id, {
+  const product = await Product.findOne({
+    where: { id, active: true }, // Only show active products
     include: [
       { model: Brand },
       { model: Shape },
@@ -131,6 +164,7 @@ const getProductsByShape = async (shapeName, queryParams) => {
   const offset = (page - 1) * limit;
 
   const productsData = await Product.findAndCountAll({
+    where: { active: true }, // Only show active products
     include: [
       {
         model: Shape,
@@ -157,6 +191,7 @@ const getProductsByColor = async (colorName, queryParams) => {
 
   // This query finds products that have at least one variant of the specified color.
   const productsData = await Product.findAndCountAll({
+    where: { active: true }, // Only show active products
     include: [
       {
         model: ProductVariation,
@@ -204,7 +239,7 @@ const getAllProductImages = async (productId) => {
 const getFeaturedProducts = async () => {
   try {
     const featuredProducts = await Product.findAll({
-      where: { isFeatured: true },
+      where: { isFeatured: true, active: true }, // Only show active featured products
       limit: 8,
       include: [
         { model: Brand },
@@ -246,6 +281,7 @@ const getAllProductVariants = async (queryParams) => {
     const includeClause = [
       {
         model: Product,
+        where: { active: true }, // Only show variants of active products
         include: [{ model: Brand }, { model: Shape }, { model: Material }],
       },
       { model: ProductImage, limit: 1 },
@@ -294,4 +330,7 @@ export default {
   getAllShapes,
   getAllColors,
   getAllMaterials,
+  getAllFeatures,
+  getProductFeatures,
+  getFeature,
 };

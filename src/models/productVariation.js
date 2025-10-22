@@ -7,6 +7,7 @@ export default (sequelize) => {
       id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
       product_id: DataTypes.INTEGER,
       color_id: DataTypes.INTEGER,
+      pic_url: DataTypes.STRING,
       sku: DataTypes.STRING,
       stock_quantity: DataTypes.INTEGER,
       createdAt: DataTypes.DATE,

@@ -2,6 +2,8 @@ import { Sequelize } from "sequelize";
 import Product from "./product.js";
 import ProductVariation from "./productVariation.js";
 import ProductImage from "./productImage.js";
+import ProductFeature from "./productFeature.js";
+import Feature from "./feature.js";
 import Brand from "./brand.js";
 import Shape from "./shape.js";
 import Material from "./material.js";
@@ -13,6 +15,7 @@ import CartItem from "./cartItem.js";
 import Order from "./order.js";
 import OrderItem from "./orderItem.js";
 import Favorite from "./favorite.js";
+import Analytics from "./analytics.js";
 
 // ✅ Initialize Sequelize
 const sequelize = new Sequelize("glasses", "root", "1", {
@@ -27,6 +30,8 @@ const models = {
   Product: Product(sequelize),
   ProductVariation: ProductVariation(sequelize),
   ProductImage: ProductImage(sequelize),
+  ProductFeature: ProductFeature(sequelize),
+  Feature: Feature(sequelize),
   Brand: Brand(sequelize),
   Shape: Shape(sequelize),
   Material: Material(sequelize),
@@ -38,6 +43,7 @@ const models = {
   Order: Order(sequelize),
   OrderItem: OrderItem(sequelize),
   Favorite: Favorite(sequelize),
+  Analytics: Analytics(sequelize),
 };
 
 // =================================================================
@@ -52,6 +58,13 @@ models.Material.hasMany(models.Product, { foreignKey: "material_id" });
 models.Product.belongsTo(models.Brand, { foreignKey: "brand_id" });
 models.Product.belongsTo(models.Shape, { foreignKey: "shape_id" });
 models.Product.belongsTo(models.Material, { foreignKey: "material_id" });
+
+// Product features
+models.Product.hasMany(models.ProductFeature, { foreignKey: "product_id" });
+models.ProductFeature.belongsTo(models.Product, { foreignKey: "product_id" });
+// Link ProductFeature <-> Feature
+models.Feature.hasMany(models.ProductFeature, { foreignKey: "feature_id" });
+models.ProductFeature.belongsTo(models.Feature, { foreignKey: "feature_id" });
 
 models.Product.hasMany(models.ProductVariation, { foreignKey: "product_id" });
 models.ProductVariation.belongsTo(models.Product, { foreignKey: "product_id" });

@@ -5,11 +5,17 @@ export default (sequelize) =>
     {
       id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
       user_id: DataTypes.INTEGER,
+      province: DataTypes.STRING,
+      district: DataTypes.STRING,
+      ward: DataTypes.STRING,
+      address: DataTypes.STRING,
       order_date: DataTypes.DATE,
+      delivery_date: DataTypes.DATEONLY,
       status: DataTypes.STRING,
-      shipping_address: DataTypes.STRING,
-      notes: DataTypes.TEXT,
+      note: DataTypes.TEXT,
+      subtotal: DataTypes.DECIMAL(10, 2),
+      shipping_cost: DataTypes.DECIMAL(10, 2),
       total_amount: DataTypes.DECIMAL(10, 2),
     },
-    { tableName: "orders", timestamps: false }
+    { tableName: "orders", timestamps: true }
   );

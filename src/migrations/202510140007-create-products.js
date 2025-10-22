@@ -9,6 +9,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       name: { type: Sequelize.STRING, allowNull: false },
+      subtitle: { type: Sequelize.STRING },
       description: { type: Sequelize.TEXT },
       brand_id: {
         type: Sequelize.INTEGER,
@@ -39,6 +40,8 @@ module.exports = {
       lens_height: { type: Sequelize.FLOAT },
       bridge: { type: Sequelize.FLOAT },
       isFeatured: { type: Sequelize.BOOLEAN, defaultValue: false },
+      active: { type: Sequelize.BOOLEAN, defaultValue: true },
+      size: { type: Sequelize.STRING },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

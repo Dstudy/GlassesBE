@@ -161,11 +161,69 @@ const getProductVariations = async (req, res) => {
   }
 };
 
+const setProductFeatures = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const features = req.body?.features || req.body;
+    if (!id) {
+      return res
+        .status(400)
+        .json({ errCode: 1, message: "Product ID is required" });
+    }
+    const updated = await productService.setProductFeatures(id, features);
+    return res
+      .status(200)
+      .json({ errCode: 0, message: "OK", product: updated });
+  } catch (error) {
+    return res.status(500).json({
+      errCode: 1,
+      message: "Error setting features",
+      error: error.message,
+    });
+  }
+};
+
+const toggleProductActive = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        errCode: 1,
+        message: "Product ID is required",
+      });
+    }
+
+    const updatedProduct = await productService.toggleProductActive(id);
+    if (!updatedProduct) {
+      return res.status(404).json({
+        errCode: 1,
+        message: "Product not found",
+      });
+    }
+
+    return res.status(200).json({
+      errCode: 0,
+      message: `Product ${
+        updatedProduct.active ? "activated" : "deactivated"
+      } successfully`,
+      product: updatedProduct,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      errCode: 1,
+      message: "Error toggling product active state",
+      error: error.message,
+    });
+  }
+};
+
 export default {
   getAllProducts,
   getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
+  toggleProductActive,
   getProductVariations,
+  setProductFeatures,
 };

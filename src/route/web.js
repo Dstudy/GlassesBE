@@ -2,9 +2,13 @@ import express from "express";
 import getHomePage from "../controllers/homeController.js";
 import userController from "../controllers/userController.js";
 import adminProductController from "../controllers/admin.productController.js";
+import adminOrderController from "../controllers/admin.orderController.js";
+import adminAnalyticsController from "../controllers/admin.analyticsController.js";
 import productController from "../controllers/productController.js";
+import adminProductImageController from "../controllers/admin.productImageController.js";
 import favoriteController from "../controllers/favoriteController.js";
 import cartController from "../controllers/cartController.js";
+import orderController from "../controllers/orderController.js";
 
 const router = express.Router();
 
@@ -29,6 +33,57 @@ const initWebRoutes = (app) => {
     "/api/admin/products/:productId/variations",
     adminProductController.getProductVariations
   );
+  router.put(
+    "/api/admin/products/:id/features",
+    adminProductController.setProductFeatures
+  );
+  router.patch(
+    "/api/admin/products/:id/toggle-active",
+    adminProductController.toggleProductActive
+  );
+
+  // Product image management (admin)
+  router.post(
+    "/api/admin/product-variations/:variationId/images",
+    adminProductImageController.addImage
+  );
+  router.put(
+    "/api/admin/product-images/:id",
+    adminProductImageController.updateImage
+  );
+  router.delete(
+    "/api/admin/product-images/:id",
+    adminProductImageController.deleteImage
+  );
+
+  // Admin Orders
+  router.get("/api/admin/orders", adminOrderController.getAllOrders);
+  router.get("/api/admin/orders/:id", adminOrderController.getOrderById);
+  router.post("/api/admin/orders", adminOrderController.createOrder);
+  router.put("/api/admin/orders/:id/status", adminOrderController.updateStatus);
+  router.delete("/api/admin/orders/:id", adminOrderController.cancelOrder);
+
+  // Admin Analytics
+  router.get(
+    "/api/admin/analytics/dashboard",
+    adminAnalyticsController.getDashboardMetrics
+  );
+  router.get(
+    "/api/admin/analytics/monthly-revenue",
+    adminAnalyticsController.getMonthlyRevenue
+  );
+  router.get(
+    "/api/admin/analytics/top-products",
+    adminAnalyticsController.getTopSellingProducts
+  );
+  router.get(
+    "/api/admin/analytics/summary",
+    adminAnalyticsController.getAnalyticsSummary
+  );
+  router.post(
+    "/api/admin/analytics/update",
+    adminAnalyticsController.updateAnalytics
+  );
 
   //User Product routes
   router.get("/api/products", productController.getAllProducts);
@@ -52,6 +107,14 @@ const initWebRoutes = (app) => {
     productController.getAllProductVariants
   );
 
+  // Features
+  router.get("/api/features", productController.getAllFeatures);
+  router.get(
+    "/api/products/:productId/features",
+    productController.getProductFeatures
+  );
+  router.get("/api/features/:id", productController.getFeature);
+
   // Favorites
   router.get("/api/users/:userId/favorites", favoriteController.list);
   router.post("/api/favorites", favoriteController.add);
@@ -69,6 +132,12 @@ const initWebRoutes = (app) => {
     cartController.removeItem
   );
   router.delete("/api/users/:userId/cart", cartController.clearCart);
+
+  // Orders
+  router.get("/api/users/:userId/orders", orderController.list);
+  router.get("/api/users/:userId/orders/:orderId", orderController.detail);
+  router.post("/api/users/:userId/orders", orderController.createFromCart);
+  router.delete("/api/users/:userId/orders/:orderId", orderController.cancel);
 
   // Lookup routes for FE to resolve ids to names
   router.get("/api/brands", productController.getAllBrands);

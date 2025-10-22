@@ -21,6 +21,7 @@ module.exports = {
         onDelete: "SET NULL",
       },
       sku: { type: Sequelize.STRING },
+      pic_url: { type: Sequelize.STRING },
       stock_quantity: { type: Sequelize.INTEGER },
       createdAt: {
         allowNull: false,

@@ -197,6 +197,57 @@ const getAllMaterials = async (_req, res) => {
   }
 };
 
+const getAllFeatures = async (_req, res) => {
+  try {
+    const features = await productService.getAllFeatures();
+    return res.status(200).json({ errCode: 0, message: "OK", data: features });
+  } catch (error) {
+    return res.status(500).json({
+      errCode: 1,
+      message: "Error getting features",
+      error: error.message,
+    });
+  }
+};
+
+const getProductFeatures = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const features = await productService.getProductFeatures(productId);
+    return res.status(200).json({ errCode: 0, message: "OK", data: features });
+  } catch (error) {
+    return res.status(500).json({
+      errCode: 1,
+      message: "Error getting product features",
+      error: error.message,
+    });
+  }
+};
+
+const getFeature = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res
+        .status(400)
+        .json({ errCode: 1, message: "Feature ID is required" });
+    }
+    const feature = await productService.getFeature(id);
+    if (!feature) {
+      return res.status(404).json({ errCode: 1, message: "Feature not found" });
+    }
+    return res.status(200).json({ errCode: 0, message: "OK", data: feature });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({
+        errCode: 1,
+        message: "Error getting feature",
+        error: error.message,
+      });
+  }
+};
+
 export default {
   getAllProducts,
   getProductById,
@@ -209,4 +260,7 @@ export default {
   getAllShapes,
   getAllColors,
   getAllMaterials,
+  getAllFeatures,
+  getProductFeatures,
+  getFeature,
 };
