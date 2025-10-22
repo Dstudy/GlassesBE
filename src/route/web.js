@@ -18,6 +18,7 @@ const initWebRoutes = (app) => {
 
   // User routes
   router.post("/api/login", userController.handleLogin);
+  router.post("/api/register", userController.hanbleUserRegister);
   router.get("/api/get-all-users", userController.getAllUsers);
 
   // Admin Product routes

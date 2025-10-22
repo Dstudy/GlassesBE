@@ -1,6 +1,7 @@
 import { where } from "sequelize";
 import db from "../models";
 import bcrypt from "bcryptjs";
+import user from "../models/user";
 
 let getUsers = (userId) => {
   return new Promise(async (resolve, reject) => {
@@ -30,7 +31,7 @@ let handleUserLogin = (email, password) => {
       let isExist = await checkUserEmail(email);
       if (isExist) {
         let user = await db.User.findOne({
-          attributes: ["email", "role_id", "password_hash"],
+          attributes: ["id", "fullname", "email", "role_id", "password_hash"],
           where: { email: email },
           raw: true,
         });
@@ -62,6 +63,36 @@ let handleUserLogin = (email, password) => {
   });
 };
 
+let hanbleUserRegister = (email, password, fullname) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let isExist = await checkUserEmail(email);
+      if (isExist) {
+        resolve({
+          errCode: 1,
+          errMessage: "Your email is already in used, please try another email",
+        });
+      } else {
+        let hashPasswordFromBcrypt = await bcrypt.hashSync(password, 10);
+        let newUser = await db.User.create({
+          email: email,
+          password_hash: hashPasswordFromBcrypt,
+          fullname: fullname,
+          role_id: "2",
+        });
+
+        resolve({
+          errCode: 0,
+          errMessage: "OK",
+          user: { id: newUser.id, email: email, fullname: fullname },
+        });
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 let checkUserEmail = (email) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -82,4 +113,5 @@ let checkUserEmail = (email) => {
 module.exports = {
   handleUserLogin: handleUserLogin,
   getUsers: getUsers,
+  hanbleUserRegister: hanbleUserRegister,
 };
